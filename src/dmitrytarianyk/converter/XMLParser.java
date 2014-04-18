@@ -10,7 +10,7 @@ public class XMLParser {
 
     private XMLStreamReader mReader;
     private List<Entry> mEntryList = new ArrayList<>();
-    private boolean mIgnore;
+    private boolean mSkip;
 
     public XMLParser(XMLStreamReader reader) {
         mReader = reader;
@@ -28,10 +28,11 @@ public class XMLParser {
                 case XMLStreamConstants.START_ELEMENT:
                     if ("Group".equals(mReader.getLocalName())) {
 //                        parseXml();
+                        // TODO: create new file for current group?
                     } else if ("Entry".equals(mReader.getLocalName())) {
                         entry = new Entry();
                     } else if ("History".equals(mReader.getLocalName())) {
-                        mIgnore = true;
+                        mSkip = true;
                     }
                     break;
                 case XMLStreamConstants.CHARACTERS:
@@ -40,7 +41,7 @@ public class XMLParser {
                 case XMLStreamConstants.END_ELEMENT:
                     switch (mReader.getLocalName()) {
                         case "Entry":
-                            if (!mIgnore) {
+                            if (!mSkip) {
                                 mEntryList.add(entry);
                             }
                             break;
@@ -48,18 +49,34 @@ public class XMLParser {
                             key = content;
                             break;
                         case "Value":
-                            if (key.equals(Constants.TITLE)) {
-                                entry.title = content;
-                            } else if (key.equals(Constants.PASSWORD)) {
-                                entry.password = content;
-                            }
+                            processValue(entry, key, content);
                             break;
                         case "History":
-                            mIgnore = false;
+                            mSkip = false;
                             break;
                     }
                     break;
             }
+        }
+    }
+
+    private void processValue(Entry entry, String key, String content) {
+        switch (key) {
+            case Constants.TITLE:
+                entry.title = content;
+                break;
+            case Constants.USERNAME:
+                entry.username = content;
+                break;
+            case Constants.PASSWORD:
+                entry.password = content;
+                break;
+            case Constants.URL:
+                entry.location = content;
+                break;
+            case Constants.NOTES:
+                entry.notes = content;
+                break;
         }
     }
 
