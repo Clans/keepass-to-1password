@@ -14,6 +14,7 @@ public class FileWriter {
         Path file = Paths.get(pathToFile + "/new-database.csv");
         try {
             Files.deleteIfExists(file);
+            Files.createDirectories(Paths.get(pathToFile));
             file = Files.createFile(file);
         } catch (IOException e) {
             System.err.println("Error creating file");

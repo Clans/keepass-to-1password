@@ -15,10 +15,11 @@ public class Main {
     public static void main(String[] args) throws ParserConfigurationException, SAXException, XMLStreamException {
         // TODO: read input params
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        File file = new File("/mnt/data/Dropbox/keepass/database-min.xml");
+        File file = new File("/mnt/data/Dropbox/keepass/Database.xml");
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             XMLStreamReader reader = factory.createXMLStreamReader(bufferedReader);
-            XMLParser parser = new XMLParser(reader);
+            FileWriter writer = new FileWriter();
+            XMLParser parser = new XMLParser(reader, writer);
             parser.parseXml();
             List<Entry> entryList = parser.getEntries();
 
@@ -26,8 +27,7 @@ public class Main {
                 System.out.println(entry);
             }
 
-            FileWriter writer = new FileWriter();
-            writer.writeToFile(entryList, "/mnt/data/Dropbox/keepass");
+//            writer.writeToFile(entryList, "/mnt/data/Dropbox/keepass");
 
             System.out.println("Total number of entries: " + entryList.size());
         } catch (FileNotFoundException e) {

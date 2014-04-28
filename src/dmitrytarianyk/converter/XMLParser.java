@@ -8,27 +8,34 @@ import java.util.List;
 
 public class XMLParser {
 
+    private static String mPath = "/mnt/data/Dropbox/keepass/keepass-to-1password";
+
     private XMLStreamReader mReader;
+    private FileWriter mWriter;
     private List<Entry> mEntryList = new ArrayList<>();
     private boolean mSkip;
+    private boolean mSplitByGroups = true;
 
-    public XMLParser(XMLStreamReader reader) {
+    public XMLParser(XMLStreamReader reader, FileWriter writer) {
         mReader = reader;
+        mWriter = writer;
     }
 
     public void parseXml() throws XMLStreamException {
         Entry entry = null;
         String content = "";
         String key = "";
+        String groupName = "";
 
         while (mReader.hasNext()) {
             int event = mReader.next();
 
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
-                    if ("Group".equals(mReader.getLocalName())) {
+                    if ("Group".equals(mReader.getLocalName()) && mSplitByGroups) {
 //                        parseXml();
                         // TODO: create new file for current group?
+                        System.out.println();
                     } else if ("Entry".equals(mReader.getLocalName())) {
                         entry = new Entry();
                     } else if ("History".equals(mReader.getLocalName())) {
@@ -53,6 +60,12 @@ public class XMLParser {
                             break;
                         case "History":
                             mSkip = false;
+                            break;
+                        case "Name":
+                            groupName = content;
+                            break;
+                        case "Group":
+                            writeData(groupName);
                             break;
                     }
                     break;
@@ -82,5 +95,11 @@ public class XMLParser {
 
     public List<Entry> getEntries() {
         return mEntryList;
+    }
+
+    private void writeData(String folder) {
+        String path = mPath + "/" + folder;
+        mWriter.writeToFile(mEntryList, path);
+        mEntryList = new ArrayList<>();
     }
 }
