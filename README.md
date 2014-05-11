@@ -11,4 +11,4 @@ Converts KeePass exported database file from xml format to csv. Converted file c
 Type: Login. Fields: "title","location","username","password","notes"
 
 ###Download
-https://github.com/Clans/keepass-to-1password/blob/master/keepass-to-1password.jar?raw=true
+https://github.com/Clans/keepass-to-1password/releases
