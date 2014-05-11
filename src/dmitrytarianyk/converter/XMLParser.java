@@ -3,20 +3,22 @@ package dmitrytarianyk.converter;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class XMLParser {
 
-    private static String mPath = "/mnt/data/Dropbox/keepass/keepass-to-1password";
-
     private XMLStreamReader mReader;
     private FileWriter mWriter;
     private List<Entry> mEntryList = new ArrayList<>();
     private boolean mSkip;
-    private boolean mSplitByGroups = true;
+    private boolean mSplitByGroups;
 
-    public XMLParser(XMLStreamReader reader, FileWriter writer) {
+    public XMLParser(XMLStreamReader reader, FileWriter writer, boolean split) {
+        mSplitByGroups = split;
         mReader = reader;
         mWriter = writer;
     }
@@ -32,11 +34,7 @@ public class XMLParser {
 
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
-                    if ("Group".equals(mReader.getLocalName()) && mSplitByGroups) {
-//                        parseXml();
-                        // TODO: create new file for current group?
-                        System.out.println();
-                    } else if ("Entry".equals(mReader.getLocalName())) {
+                    if ("Entry".equals(mReader.getLocalName())) {
                         entry = new Entry();
                     } else if ("History".equals(mReader.getLocalName())) {
                         mSkip = true;
@@ -65,7 +63,10 @@ public class XMLParser {
                             groupName = content;
                             break;
                         case "Group":
-                            writeData(groupName);
+                            if (mSplitByGroups) {
+                                writeData(groupName);
+                                groupName = "";
+                            }
                             break;
                     }
                     break;
@@ -98,7 +99,9 @@ public class XMLParser {
     }
 
     private void writeData(String folder) {
-        String path = mPath + "/" + folder;
+        if (mSplitByGroups && folder.equals("")) return;
+
+        String path = mSplitByGroups ? "/" + folder : "";
         mWriter.writeToFile(mEntryList, path);
         mEntryList = new ArrayList<>();
     }

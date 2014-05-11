@@ -10,12 +10,6 @@ public class Entry {
 
     @Override
     public String toString() {
-        return "Entry{" +
-                "title='" + title + '\'' +
-                ", location='" + location + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", notes='" + notes + '\'' +
-                '}';
+        return title + "," + location + "," + username + "," + password + "," + notes;
     }
 }
