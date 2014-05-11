@@ -12,22 +12,17 @@ import java.util.List;
 public class XMLParser {
 
     private XMLStreamReader mReader;
-    private FileWriter mWriter;
     private List<Entry> mEntryList = new ArrayList<>();
     private boolean mSkip;
-    private boolean mSplitByGroups;
 
-    public XMLParser(XMLStreamReader reader, FileWriter writer, boolean split) {
-        mSplitByGroups = split;
+    public XMLParser(XMLStreamReader reader) {
         mReader = reader;
-        mWriter = writer;
     }
 
     public void parseXml() throws XMLStreamException {
         Entry entry = null;
         String content = "";
         String key = "";
-        String groupName = "";
 
         while (mReader.hasNext()) {
             int event = mReader.next();
@@ -59,15 +54,6 @@ public class XMLParser {
                         case "History":
                             mSkip = false;
                             break;
-                        case "Name":
-                            groupName = content;
-                            break;
-                        case "Group":
-                            if (mSplitByGroups) {
-                                writeData(groupName);
-                                groupName = "";
-                            }
-                            break;
                     }
                     break;
             }
@@ -96,13 +82,5 @@ public class XMLParser {
 
     public List<Entry> getEntries() {
         return mEntryList;
-    }
-
-    private void writeData(String folder) {
-        if (mSplitByGroups && folder.equals("")) return;
-
-        String path = mSplitByGroups ? "/" + folder : "";
-        mWriter.writeToFile(mEntryList, path);
-        mEntryList = new ArrayList<>();
     }
 }

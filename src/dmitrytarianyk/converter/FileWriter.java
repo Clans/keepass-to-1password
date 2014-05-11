@@ -15,16 +15,19 @@ public class FileWriter {
 
     private String mPath;
 
+    public String getPath() {
+        return mPath;
+    }
+
     public FileWriter(String path) {
         mPath = path.substring(0, path.lastIndexOf(File.separator)) + PATH_SUFFIX;
     }
 
-    public void writeToFile(List<Entry> entryList, String pathToFile) {
-        pathToFile = mPath + pathToFile;
-        Path file = Paths.get(pathToFile + "/database-1psw.csv");
+    public void writeToFile(List<Entry> entryList) {
+        Path file = Paths.get(mPath + "/database-1psw.csv");
         try {
             Files.deleteIfExists(file);
-            Files.createDirectories(Paths.get(pathToFile));
+            Files.createDirectories(Paths.get(mPath));
             file = Files.createFile(file);
         } catch (IOException e) {
             System.err.println("Error creating file");

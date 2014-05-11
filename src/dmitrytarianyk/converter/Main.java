@@ -13,7 +13,6 @@ import java.util.List;
 public class Main {
 
     private static final String OPT_FILE = "f";
-    private static final String OPT_SPLIT = "s";
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, XMLStreamException {
         CommandLineParser clParser = new BasicParser();
@@ -21,19 +20,19 @@ public class Main {
 
         Option optFile = new Option(OPT_FILE, "file", true, "path to keepass xml file");
         optFile.setArgName("path");
-        Option optSplit = new Option(OPT_SPLIT, "split", false, "split groups on folders");
 
         Option optHelp = new Option("h", "help", false, "print this message");
         options.addOption(optFile);
-        options.addOption(optSplit);
         options.addOption(optHelp);
 
         try {
             CommandLine cl = clParser.parse(options, args);
-            String path = cl.getOptionValue(OPT_FILE);
-            boolean split = cl.hasOption(OPT_SPLIT);
-
-            readData(path, split);
+            if (cl.hasOption("h")) {
+                printUsage(options);
+            } else {
+                String path = cl.getOptionValue(OPT_FILE);
+                readData(path);
+            }
         } catch (ParseException e) {
             System.err.println("Unexpected error: " + e.getMessage());
             printUsage(options);
@@ -41,18 +40,18 @@ public class Main {
 
     }
 
-    private static void readData(String path, boolean split) throws XMLStreamException {
+    private static void readData(String path) throws XMLStreamException {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         File file = new File(path);
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             XMLStreamReader reader = factory.createXMLStreamReader(bufferedReader);
             FileWriter writer = new FileWriter(path);
-            XMLParser parser = new XMLParser(reader, writer, split);
+            XMLParser parser = new XMLParser(reader);
             parser.parseXml();
-            if (!split) {
-                List<Entry> entryList = parser.getEntries();
-                writer.writeToFile(entryList, "");
-            }
+            List<Entry> entryList = parser.getEntries();
+            writer.writeToFile(entryList);
+            System.out.println("Total entries: " + entryList.size());
+            System.out.println("Path to converted file: " + writer.getPath());
         } catch (FileNotFoundException e) {
             System.err.printf("No such file");
         } catch (IOException e) {
